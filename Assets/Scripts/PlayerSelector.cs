@@ -23,6 +23,7 @@ public class PlayerSelector : MonoBehaviour
         foreach (var player in players)
         {
             player.GetComponent<PlayerController>()._canControl = false;
+            player.GetComponent<PlayerController>().selectionIndicator.SetActive(false);
         }
     }
 }

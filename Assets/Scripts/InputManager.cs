@@ -17,20 +17,27 @@ public class InputManager : MonoBehaviour
     {
         
     }
-    public void SetValueToAxis(string axisname, float value)
+    public void SetValueToAxis(string axisName, float value)
     {
-        if (axisname == "Horizontal")
+        if (axisName == "Horizontal")
         {
             Horizontal = value;
         }
-        else if(axisname == "Vertical")
+        else if(axisName == "Vertical")
         {
             Vertical = value;
         }
     }
-    public void ResteValues()
+    public void ResteValuesAfterWait()
     {
+        
         Horizontal = 0;
         Vertical = 0;
+    }
+
+    public IEnumerator ResetValues()
+    {
+        yield return new WaitForSeconds(0.2f);
+        ResteValuesAfterWait();
     }
 }

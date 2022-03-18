@@ -8,10 +8,10 @@ public class MyButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     public string axis = "Horizontal";
     public float value;
     public bool buttonPressed;
-    InputManager inputManager;
+    InputManager _inputManager;
 
     private void Start() {
-        inputManager = FindObjectOfType<InputManager>();
+        _inputManager = FindObjectOfType<InputManager>();
     }
     
     public void OnPointerDown(PointerEventData eventData)
@@ -22,22 +22,22 @@ public class MyButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     
     public void OnPointerUp(PointerEventData eventData)
     {
+        StartCoroutine(_inputManager.ResetValues());
         buttonPressed = false;
-        inputManager.ResteValues();
     }
     private void Update() {
         if(buttonPressed)
         {
            if (axis == "Horizontal")
-            {
-                inputManager.Horizontal = value;
-                inputManager.Vertical = 0;
-            }
-            else if(axis == "Vertical")
-            {
-                inputManager.Vertical = value;
-                inputManager.Horizontal = 0;
-            }
+           {
+               _inputManager.Horizontal = value;
+               _inputManager.Vertical = 0;
+           }
+           else if(axis == "Vertical")
+           {
+               _inputManager.Vertical = value;
+               _inputManager.Horizontal = 0;
+           }
         }
         else if(!buttonPressed)
         {

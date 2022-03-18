@@ -20,6 +20,7 @@ public class PlayerSelectingButton : MonoBehaviour, IPointerDownHandler, IPointe
             buttonPressed = true;
             PlayerSelector.ResetPlayersControl();
             player.GetComponent<PlayerController>()._canControl = true;
+            player.GetComponent<PlayerController>().selectionIndicator.SetActive(true);
 
         }
        

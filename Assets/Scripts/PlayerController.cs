@@ -10,7 +10,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject _bodyPrefab;
     [SerializeField] private float _bodyMovingSpeed;
     [SerializeField] private int _bodyGap = 10;
-    private List<GameObject> _bodyparts = new List<GameObject>();
+    private List<GameObject> _bodyParts = new List<GameObject>();
     private List<Vector3> _positionHistory = new List<Vector3>();
 
     [HideInInspector] public GameObject _myLine;
@@ -24,7 +24,9 @@ public class PlayerController : MonoBehaviour
     Vector3 _targetPosition ;
     [HideInInspector] public bool _canMove = false;
     [HideInInspector] public bool _canControl = false;
+    public GameObject selectionIndicator;
     InputManager inputManager;
+    
     void Start()
     {
         inputManager = FindObjectOfType<InputManager>();
@@ -39,7 +41,7 @@ public class PlayerController : MonoBehaviour
     }
 
     // Update is called once per frame
-     void FixedUpdate ()
+     void Update ()
      {
          if(_canMove)
          {
@@ -53,6 +55,7 @@ public class PlayerController : MonoBehaviour
             //Vector3 dir = _direction;
             float step =  movingSpeed * Time.deltaTime; // calculate distance to move
             transform.position = Vector3.MoveTowards(transform.position, _targetPosition, step);
+            //transform.position = Vector3.Lerp(transform.position, _targetPosition, 0.2f);
             Vector3 dir = _targetPosition - transform.position;
             //get the angle from current direction facing to desired target
             float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
@@ -66,12 +69,14 @@ public class PlayerController : MonoBehaviour
          
      }
 
-    private void ControlBodyParts()
+    
+
+     private void ControlBodyParts()
     {
         _positionHistory.Insert(0, transform.position);
 
         int index =1;
-        foreach (var body in _bodyparts)
+        foreach (var body in _bodyParts)
         {
             Vector3 point = _positionHistory[Mathf.Min(index * _bodyGap, _positionHistory.Count -1)];
             //point = transform.position;
@@ -79,7 +84,8 @@ public class PlayerController : MonoBehaviour
             Vector3 moveDirection = (point - body.transform.position);
             
             //Debug.Log(moveDirection);
-            body.transform.position += moveDirection *_bodyMovingSpeed * Time.deltaTime;
+            //body.transform.position += moveDirection *_bodyMovingSpeed * Time.deltaTime;
+            body.transform.position = point;
             // body.transform.LookAt(point);
             //body.transform.right = moveDirection;
             float angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg;
@@ -101,9 +107,9 @@ public class PlayerController : MonoBehaviour
     void UnitBodyGrow()
     {
         Vector3 rotation;
-            if(_bodyparts.Count > 0)
+            if(_bodyParts.Count > 0)
             {
-                rotation = new Vector3 (0, 0, _bodyparts[_bodyparts.Count -1].transform.rotation.eulerAngles.z);
+                rotation = new Vector3 (0, 0, _bodyParts[_bodyParts.Count -1].transform.rotation.eulerAngles.z);
                 
             }else
             {
@@ -112,7 +118,7 @@ public class PlayerController : MonoBehaviour
             GameObject body = Instantiate (_bodyPrefab, transform.position,  Quaternion.Euler(rotation));
             //GameObject body = Instantiate(_bodyPrefab);
             //Debug.Log ("rotation = " + rotation);
-            _bodyparts.Add(body);
+            _bodyParts.Add(body);
     }
 
     public void StartMoving(){
@@ -124,6 +130,7 @@ public class PlayerController : MonoBehaviour
     }
     float horizontal;
     float vertical;
+    private float targetDistance = 100;
     private Vector3 CalculateTargetPosition()
     {
         horizontal = inputManager.Horizontal;
@@ -135,19 +142,19 @@ public class PlayerController : MonoBehaviour
         {
             if(horizontal > 0)
             {
-                return new Vector3 (transform.position.x + 1000, transform.position.y, transform.position.z);
+                return new Vector3 (transform.position.x + targetDistance, transform.position.y, transform.position.z);
             }
             else if(horizontal < 0)
             {
-                return new Vector3 (transform.position.x -1000, transform.position.y, transform.position.z);
+                return new Vector3 (transform.position.x -targetDistance, transform.position.y, transform.position.z);
             }
             if(vertical > 0)
             {
-                return new Vector3 (transform.position.x, transform.position.y +1000, transform.position.z);
+                return new Vector3 (transform.position.x, transform.position.y +targetDistance, transform.position.z);
             }
             else if(vertical < 0)
             {
-                return new Vector3 (transform.position.x, transform.position.y -1000, transform.position.z);
+                return new Vector3 (transform.position.x, transform.position.y -targetDistance, transform.position.z);
             }
             else
             {
