@@ -3,7 +3,14 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Red Food
+  - Green Food
+  - Blue Food
+  - Red Body
+  - Green Body
+  - Blue Body
+  - Body
   layers:
   - Default
   - TransparentFX
@@ -11,12 +18,12 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Blue Player
+  - Blue Body
+  - Green Player
+  - Green Body
+  - Red Player
+  - Red Body
   - 
   - 
   - 

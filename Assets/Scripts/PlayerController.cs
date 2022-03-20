@@ -25,6 +25,8 @@ public class PlayerController : MonoBehaviour
     [HideInInspector] public bool _canMove = false;
     [HideInInspector] public bool _canControl = false;
     public GameObject selectionIndicator;
+    public int foodCollectionPoint = 5;
+    public int collisionDeductionPoint = 3;
     InputManager inputManager;
     
     void Start()
@@ -41,7 +43,7 @@ public class PlayerController : MonoBehaviour
     }
 
     // Update is called once per frame
-     void Update ()
+     void FixedUpdate ()
      {
          if(_canMove)
          {
@@ -69,23 +71,39 @@ public class PlayerController : MonoBehaviour
          
      }
 
-    
+     // private void FixedUpdate()
+     // {
+     //     if (_canMove)
+     //     {
+     //         //ControlBodyParts();
+     //     }
+     // }
+
 
      private void ControlBodyParts()
     {
         _positionHistory.Insert(0, transform.position);
 
-        int index =1;
+        int index = 1;
         foreach (var body in _bodyParts)
         {
             Vector3 point = _positionHistory[Mathf.Min(index * _bodyGap, _positionHistory.Count -1)];
             //point = transform.position;
             //Debug.Log("point "+ point + " body " + body.transform.position);
             Vector3 moveDirection = (point - body.transform.position);
+            if (Vector3.Distance(point, body.transform.position) > 0.8 )
+            {
+                Debug.Log("dure gase");
+                body.SetActive(false);
+            }
+            else
+            {
+                body.SetActive(true);
+            }
             
             //Debug.Log(moveDirection);
-            //body.transform.position += moveDirection *_bodyMovingSpeed * Time.deltaTime;
-            body.transform.position = point;
+            body.transform.position += moveDirection *_bodyMovingSpeed * Time.deltaTime;
+            //body.transform.position = point;
             // body.transform.LookAt(point);
             //body.transform.right = moveDirection;
             float angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg;
@@ -135,7 +153,7 @@ public class PlayerController : MonoBehaviour
     {
         horizontal = inputManager.Horizontal;
         vertical = inputManager.Vertical;
-        Debug.Log("values " +horizontal + " "+ vertical);
+        //Debug.Log("values " +horizontal + " "+ vertical);
         
 
         if(_canControl)
@@ -169,18 +187,79 @@ public class PlayerController : MonoBehaviour
     }
 
     private void OnCollisionEnter2D(Collision2D other) {
-        if(other.gameObject.CompareTag("Player"))
+        Debug.Log(other.gameObject.name);
+        
+    }
+
+    void FoodCollision(Collider2D other)
+    {
+        if(other.gameObject.CompareTag("Blue Food"))
         {
-            Debug.Log("Game Over");
-            //FindObjectOfType<UIController>().OpenGameOverCanvas();
+            if (_bodyPrefab.name.StartsWith("Blue"))
+            {
+                Destroy(other.gameObject);
+                FindObjectOfType<UIManager>().AddPoints(foodCollectionPoint);
+                FindObjectOfType<FoodManager>().ReSpawnFood("Blue");
+                GrowBody();
+            }
+            else
+            {
+                //ControlGameOver();
+            }
+        }
+        else if(other.gameObject.CompareTag("Red Food"))
+        {
+            if (_bodyPrefab.name.StartsWith("Red"))
+            {
+                Destroy(other.gameObject);
+                FindObjectOfType<UIManager>().AddPoints(foodCollectionPoint);
+                FindObjectOfType<FoodManager>().ReSpawnFood("Red");
+                GrowBody();
+            }
+            else
+            {
+                //ControlGameOver();
+            }
+        }
+        else if(other.gameObject.CompareTag("Green Food"))
+        {
+            if (_bodyPrefab.name.StartsWith("Green"))
+            {
+                Destroy(other.gameObject);
+                FindObjectOfType<UIManager>().AddPoints(foodCollectionPoint);
+                FindObjectOfType<FoodManager>().ReSpawnFood("Green");
+                GrowBody();
+            }
+            else
+            {
+                //ControlGameOver();
+            }
         }
     }
+
+    [SerializeField] private float collisionCheckingIntarval = 1;
+    private float nextCollisonCheckTime;
     private void OnTriggerEnter2D(Collider2D other) {
-        if(other.gameObject.CompareTag("Player"))
+        FoodCollision(other);
+        var obejct = other.gameObject;
+        //Debug.Log("Trigger " +other.gameObject.name);
+        if (Time.time >= nextCollisonCheckTime)
         {
-            Debug.Log("Game Over");
-            //FindObjectOfType<UIController>().OpenGameOverCanvas();
+            if(obejct.CompareTag("Player") || obejct.CompareTag("Body") )
+            {
+                FindObjectOfType<UIManager>().DeductPoints(collisionDeductionPoint);
+                Debug.Log("Game Over");
+                //FindObjectOfType<UIController>().OpenGameOverCanvas();
+            }
+
+            nextCollisonCheckTime = Time.time + collisionCheckingIntarval;
         }
+        
+    }
+
+    void ControlGameOver()
+    {
+        FindObjectOfType<UIManager>().GameOver();
     }
 
     void BringPlayerUp()
